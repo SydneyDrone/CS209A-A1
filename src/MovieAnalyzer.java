@@ -23,10 +23,10 @@ public class MovieAnalyzer {
         }
     }
 
-    public MovieAnalyzer(String dataset_path) {
+    public MovieAnalyzer(String datasetPath) {
         movieList = new ArrayList<>();
         List<List<String>> data = new ArrayList<>();
-        try (Scanner scanner = new Scanner(Path.of(dataset_path), StandardCharsets.UTF_8)) {
+        try (Scanner scanner = new Scanner(Path.of(datasetPath), StandardCharsets.UTF_8)) {
             while (scanner.hasNext()) {
                 data.add(parseLine(scanner.nextLine()));
             }
@@ -56,7 +56,7 @@ public class MovieAnalyzer {
             if (sb.length() == 0 && !isQuotedAttribute && ch == quote) {
                 isQuotedAttribute = true;
             } else if (ch == separator) {
-                if (quoteNum % 2 ==(isQuotedAttribute ? 1 : 0)) {
+                if (quoteNum % 2 == (isQuotedAttribute ? 1 : 0)) {
                     if (isQuotedAttribute) {
                         sb.deleteCharAt(sb.length() - 1);
                     }
@@ -124,19 +124,19 @@ public class MovieAnalyzer {
         return ans;
     }
 
-    public List<String> getTopMovies(int top_k, String by) {
+    public List<String> getTopMovies(int topK, String by) {
         if (by.equals("runtime")) {
             return movieList.stream()
                     .filter(movie -> movie.runtime != -1)
                     .sorted((o1, o2) -> o1.runtime == o2.runtime ? o1.name.compareTo(o2.name) : o2.runtime - o1.runtime)
-                    .limit(top_k)
+                    .limit(topK)
                     .flatMap(movie -> Stream.of(movie.name))
                     .toList();
         } else if (by.equals("overview")) {
             return movieList.stream()
                     .filter(movie -> !movie.overview.isEmpty())
                     .sorted((o1, o2) -> o1.overview.length() == o2.overview.length() ? o1.name.compareTo(o2.name) : o2.overview.length() - o1.overview.length())
-                    .limit(top_k)
+                    .limit(topK)
                     .flatMap(movie -> Stream.of(movie.name))
                     .toList();
         } else {
@@ -144,7 +144,7 @@ public class MovieAnalyzer {
         }
     }
 
-    public List<String> getTopStars(int top_k, String by) {
+    public List<String> getTopStars(int topK, String by) {
         Map<String, Double> map = new HashMap<>();
         Map<String, Integer> countMap = new HashMap<>();
         if (by.equals("rating")) {
@@ -170,15 +170,15 @@ public class MovieAnalyzer {
             map.replaceAll((s, v) -> map.get(s) / countMap.get(s));
             return map.entrySet().stream()
                     .sorted((o1, o2) -> o1.getValue().equals(o2.getValue()) ? o1.getKey().compareTo(o2.getKey()) : o2.getValue().compareTo(o1.getValue()))
-                    .limit(top_k)
+                    .limit(topK)
                     .flatMap(entry -> Stream.of(entry.getKey()))
                     .toList();
         }
     }
 
-    public List<String> searchMovies(String genre, float min_rating, int max_runtime) {
+    public List<String> searchMovies(String genre, float minRating, int maxRuntime) {
         return movieList.stream()
-                .filter(movie -> movie.genre.contains(genre) && movie.rating >= min_rating && movie.runtime <= max_runtime)
+                .filter(movie -> movie.genre.contains(genre) && movie.rating >= minRating && movie.runtime <= maxRuntime)
                 .sorted(Comparator.comparing(o -> o.name))
                 .flatMap(movie -> Stream.of(movie.name))
                 .toList();
